@@ -1,0 +1,28 @@
+Go-To-Market Strategy for Startups
+
+A go-to-market (GTM) strategy defines how a company will reach its target customers and achieve competitive advantage.
+
+Ideal Customer Profile (ICP)
+The ICP describes the perfect customer for your product. Define: company size, industry, job title, pain points, budget, and where they spend time. The more specific your ICP, the more effective your marketing.
+
+Distribution Channels
+Top B2C channels: Social media (LinkedIn, Twitter/X, TikTok, Instagram), Content marketing, SEO, Influencer marketing, App stores, Word of mouth.
+Top B2B channels: LinkedIn outreach, Cold email, Content marketing, Partnerships, Product Hunt, Conferences.
+
+Community-Led Growth
+Build in public. Share your journey on Twitter/X. Join communities where your ICP spends time: Reddit, Discord, Slack groups, Indie Hackers, Product Hunt. Give value before asking for anything.
+
+Product Hunt Launch
+Product Hunt is a top channel for B2B SaaS launches. Prepare for weeks. Build a list of supporters. Schedule your launch on a Tuesday/Wednesday. Reach out to influencers. Have your demo video ready.
+
+Content Marketing
+Content marketing builds long-term organic growth. Start a blog. Write for your ICP. SEO-optimize articles around problems your product solves. Guest post on industry publications. Build topical authority.
+
+Viral Loops and Referrals
+Design viral loops into the product: invite flows, shareable outputs, free plans with branding. Dropbox's referral program gave both sides extra storage. Notion's templates page drives organic discovery.
+
+Pricing Strategy
+Freemium: free tier creates top-of-funnel, paid tier converts power users. Pricing anchoring: show expensive plan first. Usage-based pricing grows with customer success. Annual pricing improves cash flow.
+
+Launch Sequence
+Week 1: Soft launch to close network. Week 2-3: Collect testimonials and case studies. Week 4: Product Hunt launch. Week 5+: Press outreach, paid experiments, community marketing.

@@ -1,0 +1,24 @@
+Lean Startup Methodology
+
+The Lean Startup methodology is a scientific approach to creating and managing startups. It helps companies deliver products to customers faster and more efficiently.
+
+Build-Measure-Learn Loop
+The core of lean startup is the Build-Measure-Learn feedback loop. Start by building a Minimum Viable Product (MVP) — the simplest version of your product that lets you test your core hypothesis. Measure how customers respond. Learn from the data and decide whether to persevere or pivot.
+
+Minimum Viable Product (MVP)
+An MVP is not a basic product — it is the fastest way to test your riskiest business assumption. The MVP should solve the core problem for early adopters. It should be embarrassingly simple. Done is better than perfect at the MVP stage.
+
+Validated Learning
+Every startup action should be oriented toward learning. Before building a feature, define what you expect to learn. Define the metrics that will tell you whether your hypothesis is correct. Run experiments. Treat failures as learning opportunities.
+
+Pivot or Persevere
+A pivot is a structured course correction designed to test a new fundamental hypothesis. Common pivots: zoom-in pivot (one feature becomes the whole product), customer segment pivot (same product, different customer), platform pivot, business architecture pivot.
+
+Product-Market Fit
+Product-market fit means being in a good market with a product that can satisfy that market. Signs of PMF: customers are pulling the product from you, NPS scores above 40, high organic referral rates, customers upset when you ask if they'd be sad if the product disappeared.
+
+Key Lean Startup Metrics
+Vanity metrics vs actionable metrics. Focus on: Customer Acquisition Cost (CAC), Lifetime Value (LTV), Churn Rate, Net Promoter Score (NPS), Monthly Active Users (MAU), Day 1/7/30 retention rates.
+
+Early Adopters
+Early adopters are not representative of the mainstream market. They tolerate imperfection. They buy into the vision. They give detailed feedback. Focus on them first. Do not optimize for the mainstream before achieving PMF with early adopters.

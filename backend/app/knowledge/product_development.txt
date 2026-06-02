@@ -1,0 +1,28 @@
+Product Development Frameworks for Startups
+
+Jobs-To-Be-Done (JTBD)
+JTBD theory: customers don't buy products, they hire them to do a job. Understand the functional, emotional, and social jobs your product does for customers. Map outcomes customers want: reduce time, reduce cost, reduce risk, improve output quality.
+
+User Story Mapping
+User story mapping creates a shared understanding of the product. Arrange stories as a narrative flow. Group by user activities. Prioritize for the MVP slice — the smallest complete experience.
+
+Agile and Scrum for Startups
+Two-week sprints. Daily standups (15 minutes). Sprint planning, review, retrospective. Backlog grooming. User stories with acceptance criteria. Definition of done. Velocity tracking.
+
+Product Roadmap Types
+Now-Next-Later roadmap for early stage startups. Outcome-based roadmap (not feature-based). Theme-based roadmaps. OKR-driven roadmaps. Avoid Gantt charts at MVP stage.
+
+Design Thinking
+Empathize: understand user pain deeply through interviews. Define: synthesize observations into a problem statement. Ideate: brainstorm solutions widely. Prototype: build cheap, fast prototypes. Test: validate with real users.
+
+Technical Debt
+Balance speed and quality. Technical debt is acceptable at MVP stage but must be paid back. Document it. Set aside 20% of sprint capacity for debt reduction once product ships.
+
+API-First Design
+Design APIs before building UIs. This ensures flexibility and enables mobile apps, third-party integrations, and future product extensions from day one.
+
+Feature Prioritization Frameworks
+RICE scoring: Reach × Impact × Confidence / Effort. MoSCoW: Must Have, Should Have, Could Have, Won't Have. ICE scoring: Impact, Confidence, Ease. Kano Model: basic, performance, and delight features.
+
+System Design Principles
+Single Responsibility Principle. Separation of concerns. Don't repeat yourself (DRY). YAGNI (You Aren't Gonna Need It) — don't over-engineer at MVP stage. Design for change. Write tests for critical paths.
