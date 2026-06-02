@@ -6,8 +6,6 @@ Create Date: 2026-06-02
 """
 
 from alembic import op
-import sqlalchemy as sa
-from sqlalchemy.dialects import postgresql
 
 revision = "001"
 down_revision = None
@@ -16,106 +14,95 @@ depends_on = None
 
 
 def upgrade() -> None:
-    """Create all tables for the initial FounderOS schema."""
+    """Create all tables using raw SQL to avoid SQLAlchemy enum double-creation."""
 
-    # ── Enum types ─────────────────────────────────────────────────────────────
-    idea_status = postgresql.ENUM(
-        "DRAFT", "PENDING", "PROCESSING", "COMPLETED", "FAILED",
-        name="idea_status",
-    )
-    agent_type = postgresql.ENUM(
-        "MARKET_RESEARCH", "COMPETITOR_ANALYSIS", "PRODUCT_MANAGER",
-        "TECHNICAL_ARCHITECT", "DATABASE_ARCHITECT", "API_DESIGN",
-        "UIUX", "ROADMAP", "MARKETING", "RISK_ANALYSIS",
-        name="agent_type",
-    )
-    report_status = postgresql.ENUM(
-        "PENDING", "RUNNING", "COMPLETED", "FAILED",
-        name="report_status",
-    )
+    op.execute("""
+        -- ── Enum types ──────────────────────────────────────────────────────────
+        CREATE TYPE idea_status AS ENUM (
+            'DRAFT', 'PENDING', 'PROCESSING', 'COMPLETED', 'FAILED'
+        );
 
-    idea_status.create(op.get_bind(), checkfirst=True)
-    agent_type.create(op.get_bind(), checkfirst=True)
-    report_status.create(op.get_bind(), checkfirst=True)
+        CREATE TYPE agent_type AS ENUM (
+            'MARKET_RESEARCH', 'COMPETITOR_ANALYSIS', 'PRODUCT_MANAGER',
+            'TECHNICAL_ARCHITECT', 'DATABASE_ARCHITECT', 'API_DESIGN',
+            'UIUX', 'ROADMAP', 'MARKETING', 'RISK_ANALYSIS'
+        );
 
-    # ── users ──────────────────────────────────────────────────────────────────
-    op.create_table(
-        "users",
-        sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True),
-        sa.Column("email", sa.String(255), nullable=False, unique=True),
-        sa.Column("name", sa.String(100), nullable=False),
-        sa.Column("password_hash", sa.String(255), nullable=False),
-        sa.Column("is_active", sa.Boolean(), nullable=False, server_default="true"),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-    )
-    op.create_index("idx_users_email", "users", ["email"])
+        CREATE TYPE report_status AS ENUM (
+            'PENDING', 'RUNNING', 'COMPLETED', 'FAILED'
+        );
 
-    # ── ideas ──────────────────────────────────────────────────────────────────
-    op.create_table(
-        "ideas",
-        sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True),
-        sa.Column("user_id", postgresql.UUID(as_uuid=True), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
-        sa.Column("title", sa.String(200), nullable=False),
-        sa.Column("problem_statement", sa.Text(), nullable=False),
-        sa.Column("target_audience", sa.String(500), nullable=False),
-        sa.Column("status", sa.Enum("DRAFT", "PENDING", "PROCESSING", "COMPLETED", "FAILED", name="idea_status"), nullable=False, server_default="DRAFT"),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-    )
-    op.create_index("idx_ideas_user_id", "ideas", ["user_id"])
-    op.create_index("idx_ideas_status", "ideas", ["status"])
+        -- ── users ────────────────────────────────────────────────────────────────
+        CREATE TABLE users (
+            id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            email       VARCHAR(255) NOT NULL UNIQUE,
+            name        VARCHAR(100) NOT NULL,
+            password_hash VARCHAR(255) NOT NULL,
+            is_active   BOOLEAN NOT NULL DEFAULT TRUE,
+            created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        );
+        CREATE INDEX idx_users_email ON users(email);
 
-    # ── reports ────────────────────────────────────────────────────────────────
-    op.create_table(
-        "reports",
-        sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True),
-        sa.Column("idea_id", postgresql.UUID(as_uuid=True), sa.ForeignKey("ideas.id", ondelete="CASCADE"), nullable=False),
-        sa.Column("agent_type", sa.Enum(
-            "MARKET_RESEARCH", "COMPETITOR_ANALYSIS", "PRODUCT_MANAGER",
-            "TECHNICAL_ARCHITECT", "DATABASE_ARCHITECT", "API_DESIGN",
-            "UIUX", "ROADMAP", "MARKETING", "RISK_ANALYSIS",
-            name="agent_type",
-        ), nullable=False),
-        sa.Column("status", sa.Enum("PENDING", "RUNNING", "COMPLETED", "FAILED", name="report_status"), nullable=False, server_default="PENDING"),
-        sa.Column("output", postgresql.JSONB(), nullable=True),
-        sa.Column("reasoning_summary", sa.Text(), nullable=True),
-        sa.Column("error_message", sa.Text(), nullable=True),
-        sa.Column("execution_time_ms", sa.Integer(), nullable=True),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.UniqueConstraint("idea_id", "agent_type", name="uq_report_idea_agent"),
-    )
-    op.create_index("idx_reports_idea_id", "reports", ["idea_id"])
-    op.create_index("idx_reports_agent_type", "reports", ["agent_type"])
-    op.create_index("idx_reports_status", "reports", ["status"])
+        -- ── ideas ────────────────────────────────────────────────────────────────
+        CREATE TABLE ideas (
+            id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            user_id           UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            title             VARCHAR(200) NOT NULL,
+            problem_statement TEXT NOT NULL,
+            target_audience   VARCHAR(500) NOT NULL,
+            status            idea_status NOT NULL DEFAULT 'DRAFT',
+            created_at        TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            updated_at        TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        );
+        CREATE INDEX idx_ideas_user_id ON ideas(user_id);
+        CREATE INDEX idx_ideas_status ON ideas(status);
 
-    # ── agent_runs ─────────────────────────────────────────────────────────────
-    op.create_table(
-        "agent_runs",
-        sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True),
-        sa.Column("report_id", postgresql.UUID(as_uuid=True), sa.ForeignKey("reports.id", ondelete="CASCADE"), nullable=False),
-        sa.Column("agent_name", sa.String(100), nullable=False),
-        sa.Column("input_snapshot", postgresql.JSONB(), nullable=False),
-        sa.Column("output_snapshot", postgresql.JSONB(), nullable=True),
-        sa.Column("prompt_used", sa.Text(), nullable=True),
-        sa.Column("model_used", sa.String(100), nullable=True),
-        sa.Column("tokens_used", sa.Integer(), nullable=True),
-        sa.Column("status", sa.Enum("PENDING", "RUNNING", "COMPLETED", "FAILED", name="report_status"), nullable=False, server_default="RUNNING"),
-        sa.Column("error_message", sa.Text(), nullable=True),
-        sa.Column("started_at", sa.DateTime(timezone=True), nullable=False),
-        sa.Column("completed_at", sa.DateTime(timezone=True), nullable=True),
-    )
-    op.create_index("idx_agent_runs_report_id", "agent_runs", ["report_id"])
+        -- ── reports ──────────────────────────────────────────────────────────────
+        CREATE TABLE reports (
+            id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            idea_id             UUID NOT NULL REFERENCES ideas(id) ON DELETE CASCADE,
+            agent_type          agent_type NOT NULL,
+            status              report_status NOT NULL DEFAULT 'PENDING',
+            output              JSONB,
+            reasoning_summary   TEXT,
+            error_message       TEXT,
+            execution_time_ms   INTEGER,
+            created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            updated_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            UNIQUE(idea_id, agent_type)
+        );
+        CREATE INDEX idx_reports_idea_id ON reports(idea_id);
+        CREATE INDEX idx_reports_agent_type ON reports(agent_type);
+        CREATE INDEX idx_reports_status ON reports(status);
+
+        -- ── agent_runs ───────────────────────────────────────────────────────────
+        CREATE TABLE agent_runs (
+            id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            report_id       UUID NOT NULL REFERENCES reports(id) ON DELETE CASCADE,
+            agent_name      VARCHAR(100) NOT NULL,
+            input_snapshot  JSONB NOT NULL,
+            output_snapshot JSONB,
+            prompt_used     TEXT,
+            model_used      VARCHAR(100),
+            tokens_used     INTEGER,
+            status          report_status NOT NULL DEFAULT 'RUNNING',
+            error_message   TEXT,
+            started_at      TIMESTAMPTZ NOT NULL,
+            completed_at    TIMESTAMPTZ
+        );
+        CREATE INDEX idx_agent_runs_report_id ON agent_runs(report_id);
+    """)
 
 
 def downgrade() -> None:
     """Drop all tables and enum types."""
-    op.drop_table("agent_runs")
-    op.drop_table("reports")
-    op.drop_table("ideas")
-    op.drop_table("users")
-
-    op.execute("DROP TYPE IF EXISTS report_status")
-    op.execute("DROP TYPE IF EXISTS agent_type")
-    op.execute("DROP TYPE IF EXISTS idea_status")
+    op.execute("""
+        DROP TABLE IF EXISTS agent_runs;
+        DROP TABLE IF EXISTS reports;
+        DROP TABLE IF EXISTS ideas;
+        DROP TABLE IF EXISTS users;
+        DROP TYPE IF EXISTS report_status;
+        DROP TYPE IF EXISTS agent_type;
+        DROP TYPE IF EXISTS idea_status;
+    """)

@@ -1,24 +1,46 @@
 Lean Startup Methodology
 
-The Lean Startup methodology is a scientific approach to creating and managing startups. It helps companies deliver products to customers faster and more efficiently.
+The Lean Startup methodology is a scientific approach to creating and managing startups. It helps companies deliver products to customers faster and more efficiently by eliminating uncertainty through validated learning.
 
 Build-Measure-Learn Loop
-The core of lean startup is the Build-Measure-Learn feedback loop. Start by building a Minimum Viable Product (MVP) — the simplest version of your product that lets you test your core hypothesis. Measure how customers respond. Learn from the data and decide whether to persevere or pivot.
+The core of lean startup is the Build-Measure-Learn feedback loop. Start by building a Minimum Viable Product (MVP) — the simplest version of your product that lets you test your core hypothesis. Measure how customers respond using qualitative and quantitative data. Learn from the data and decide whether to persevere or pivot. The goal is to minimize the total time through this loop.
 
 Minimum Viable Product (MVP)
-An MVP is not a basic product — it is the fastest way to test your riskiest business assumption. The MVP should solve the core problem for early adopters. It should be embarrassingly simple. Done is better than perfect at the MVP stage.
+An MVP is not a basic product — it is the fastest way to test your riskiest business assumption with the least effort. The MVP should solve the core problem for early adopters only. It should be embarrassingly simple. Done is better than perfect at the MVP stage. Famous MVPs: Dropbox launched with a video demo before building the product. Airbnb started by renting out air mattresses in their apartment. Zappos started by photographing shoes from local stores and buying them only after customers ordered.
 
 Validated Learning
-Every startup action should be oriented toward learning. Before building a feature, define what you expect to learn. Define the metrics that will tell you whether your hypothesis is correct. Run experiments. Treat failures as learning opportunities.
+Every startup action should be oriented toward learning, not execution. Before building a feature, define what you expect to learn. Create a hypothesis: "We believe that [customer segment] will [desired outcome] because [reason]." Define the metrics that will tell you whether your hypothesis is correct. Run experiments. Treat failures as learning opportunities, not setbacks.
 
 Pivot or Persevere
-A pivot is a structured course correction designed to test a new fundamental hypothesis. Common pivots: zoom-in pivot (one feature becomes the whole product), customer segment pivot (same product, different customer), platform pivot, business architecture pivot.
+A pivot is a structured course correction designed to test a new fundamental hypothesis about the product, strategy, and engine of growth. Common pivot types: zoom-in pivot (one feature becomes the whole product), customer segment pivot (same product, different customer), platform pivot (from app to platform), business architecture pivot (high margin low volume vs low margin high volume), value capture pivot (monetization model change), engine of growth pivot (viral vs sticky vs paid), channel pivot (distribution model change), technology pivot (same solution, new technology).
 
 Product-Market Fit
-Product-market fit means being in a good market with a product that can satisfy that market. Signs of PMF: customers are pulling the product from you, NPS scores above 40, high organic referral rates, customers upset when you ask if they'd be sad if the product disappeared.
+Product-market fit means being in a good market with a product that can satisfy that market. PMF is the first critical milestone for any startup. Signs of strong PMF: customers are pulling the product from you rather than you pushing it to them, NPS scores above 40, high organic referral and word-of-mouth rates, customers are genuinely upset when you ask how they'd feel if the product disappeared, retention curves flatten (people keep using the product), and revenue grows faster than your marketing spend.
 
-Key Lean Startup Metrics
-Vanity metrics vs actionable metrics. Focus on: Customer Acquisition Cost (CAC), Lifetime Value (LTV), Churn Rate, Net Promoter Score (NPS), Monthly Active Users (MAU), Day 1/7/30 retention rates.
+Pre-PMF vs Post-PMF Strategy
+Pre-PMF: focus exclusively on finding product-market fit. Do not scale marketing, do not optimize for efficiency, do not hire aggressively. Talk to users daily. Post-PMF: now it's time to scale. Invest heavily in customer acquisition, build the team, optimize operations, and raise growth capital.
+
+Key Lean Startup Metrics — AARRR Framework
+Acquisition: how users find you (SEO, paid ads, referral, viral).
+Activation: do users have a great first experience? (onboarding completion, first value moment).
+Retention: do activated users come back? (DAU/MAU ratio, day 1/7/30 retention).
+Revenue: do retained users pay? (conversion to paid, ARPU, LTV).
+Referral: do paying users tell others? (viral coefficient, NPS, referral rate).
+
+Critical SaaS Metrics
+Customer Acquisition Cost (CAC): total sales and marketing spend divided by new customers acquired.
+Lifetime Value (LTV): average revenue per customer multiplied by gross margin divided by churn rate.
+LTV:CAC Ratio: should be at least 3:1 for a healthy SaaS business.
+Payback Period: how many months to recover CAC. Should be under 12 months for venture-scale businesses.
+Monthly Recurring Revenue (MRR): key health metric for subscription businesses.
+Churn Rate: percentage of customers who cancel per month. Below 2% monthly is excellent for SMB SaaS.
+Net Revenue Retention (NRR): measures expansion revenue. Over 100% means existing customers are growing revenue even as some churn.
 
 Early Adopters
-Early adopters are not representative of the mainstream market. They tolerate imperfection. They buy into the vision. They give detailed feedback. Focus on them first. Do not optimize for the mainstream before achieving PMF with early adopters.
+Early adopters are not representative of the mainstream market. They tolerate imperfection and incompleteness. They buy into the vision, not the product. They give detailed, actionable feedback. They are the bridge to the mainstream. Identify them by looking for people who: have the problem acutely, have already tried to solve it themselves, have budget and authority to buy, and are active in communities related to the problem space.
+
+Innovation Accounting
+Traditional accounting is useless for startups. Innovation accounting has three steps: establish a baseline (current metrics from an MVP experiment), tune the engine (optimize product/marketing toward the ideal), pivot or persevere (decide based on data whether the hypothesis was validated).
+
+Actionable vs Vanity Metrics
+Vanity metrics make you feel good but don't drive decisions: total registered users, total page views, press mentions, social media followers. Actionable metrics change your behavior: daily/weekly active users, conversion rate by cohort, revenue per user, retention by signup month, support ticket volume per user.

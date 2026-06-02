@@ -7,7 +7,7 @@ import { useAnalyzeIdea } from "@/hooks/useIdeas";
 import { cn } from "@/lib/utils";
 import { STATUS_COLORS } from "@/lib/constants";
 import type { Idea } from "@/types/idea.types";
-import { Play } from "lucide-react";
+import { Play, RefreshCw } from "lucide-react";
 
 interface IdeaHeaderProps {
   idea: Idea;
@@ -15,7 +15,8 @@ interface IdeaHeaderProps {
 
 export function IdeaHeader({ idea }: IdeaHeaderProps) {
   const { mutate: analyze, isPending } = useAnalyzeIdea();
-  const canAnalyze = idea.status === "DRAFT" || idea.status === "FAILED";
+  // Allow re-analyzing from any terminal state (DRAFT, FAILED, or COMPLETED)
+  const canAnalyze = idea.status === "DRAFT" || idea.status === "FAILED" || idea.status === "COMPLETED";
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-6">
@@ -51,15 +52,25 @@ export function IdeaHeader({ idea }: IdeaHeaderProps) {
           </div>
         </div>
 
-        {/* Analyze button */}
+        {/* Analyze / Re-analyze button */}
         {canAnalyze && (
           <button
             onClick={() => analyze(idea.id)}
             disabled={isPending}
             className="flex-shrink-0 flex items-center gap-2 bg-blue-500 hover:bg-blue-600 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
           >
-            <Play className="w-4 h-4" />
-            {isPending ? "Starting..." : "Analyze"}
+            {idea.status === "COMPLETED" || idea.status === "FAILED" ? (
+              <RefreshCw className="w-4 h-4" />
+            ) : (
+              <Play className="w-4 h-4" />
+            )}
+            {isPending
+              ? "Starting..."
+              : idea.status === "COMPLETED"
+              ? "Re-analyze"
+              : idea.status === "FAILED"
+              ? "Retry"
+              : "Analyze"}
           </button>
         )}
       </div>

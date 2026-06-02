@@ -22,7 +22,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 import httpx
-import google.generativeai as genai
+from google import genai
 
 from app.agents.state import PipelineState
 from app.core.config import settings
@@ -53,9 +53,9 @@ class BaseAgent(ABC):
     def __init__(self):
         """
         Purpose: Initialize Gemini client using the API key from settings.
+        Uses the new google-genai SDK which supports both AIzaSy and AQ.A key formats.
         """
-        genai.configure(api_key=settings.gemini_api_key)
-        self.gemini_model = genai.GenerativeModel(settings.gemini_model)
+        self.gemini_client = genai.Client(api_key=settings.gemini_api_key)
 
     # ── Abstract interface ─────────────────────────────────────────────────────
 
@@ -190,53 +190,79 @@ class BaseAgent(ABC):
 
     # ── LLM calling with fallback ─────────────────────────────────────────────
 
+    # Free models tried in order when Gemini is unavailable.
+    # If one returns 404/401/403 we skip to the next automatically.
+    OPENROUTER_FALLBACK_MODELS = [
+        "mistralai/mistral-7b-instruct:free",
+        "meta-llama/llama-3.1-8b-instruct:free",
+        "google/gemma-2-9b-it:free",
+        "openchat/openchat-7b:free",
+        "nousresearch/nous-capybara-7b:free",
+    ]
+
     def _call_llm_with_fallback(
         self, prompt: str
     ) -> tuple[str, str, int | None]:
         """
-        Purpose: Attempt Gemini first; fall back to OpenRouter on error.
+        Purpose: Attempt Gemini first, then try each OpenRouter free model
+          in sequence until one succeeds.
         Parameters:
           prompt: The full LLM prompt string.
         Returns:
           tuple: (model_name, raw_text_response, tokens_used_or_None)
+        Raises:
+          RuntimeError: If every LLM attempt fails.
         """
         # ── Try Gemini (primary) ────────────────────────────────────────────────
         try:
-            response = self.gemini_model.generate_content(
-                prompt,
-                generation_config=genai.GenerationConfig(
-                    temperature=0.7,
-                    max_output_tokens=4096,
-                ),
+            response = self.gemini_client.models.generate_content(
+                model=settings.gemini_model,
+                contents=prompt,
             )
             tokens = None
-            if hasattr(response, "usage_metadata"):
+            if hasattr(response, "usage_metadata") and response.usage_metadata:
                 tokens = response.usage_metadata.total_token_count
             return settings.gemini_model, response.text, tokens
 
         except Exception as gemini_error:
-            print(f"⚠️  Gemini failed ({gemini_error}), falling back to OpenRouter...")
+            print(f"⚠️  Gemini failed ({gemini_error}), trying OpenRouter fallbacks...")
 
-        # ── Try OpenRouter (fallback) ───────────────────────────────────────────
-        with httpx.Client(timeout=60) as client:
-            response = client.post(
-                "https://openrouter.ai/api/v1/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {settings.openrouter_api_key}",
-                    "Content-Type": "application/json",
-                },
-                json={
-                    "model": settings.openrouter_model,
-                    "messages": [{"role": "user", "content": prompt}],
-                    "max_tokens": 4096,
-                    "temperature": 0.7,
-                },
-            )
-            response.raise_for_status()
-            data = response.json()
-            text = data["choices"][0]["message"]["content"]
-            tokens = data.get("usage", {}).get("total_tokens")
-            return settings.openrouter_model, text, tokens
+        # ── Try each OpenRouter model in order ─────────────────────────────────
+        last_error: Exception | None = None
+
+        with httpx.Client(timeout=120) as client:
+            for model in self.OPENROUTER_FALLBACK_MODELS:
+                try:
+                    print(f"   Trying OpenRouter model: {model}")
+                    response = client.post(
+                        "https://openrouter.ai/api/v1/chat/completions",
+                        headers={
+                            "Authorization": f"Bearer {settings.openrouter_api_key}",
+                            "Content-Type": "application/json",
+                            "HTTP-Referer": "http://localhost:3000",
+                            "X-Title": "FounderOS",
+                        },
+                        json={
+                            "model": model,
+                            "messages": [{"role": "user", "content": prompt}],
+                            "max_tokens": 4096,
+                        },
+                    )
+                    response.raise_for_status()
+                    data = response.json()
+                    text = data["choices"][0]["message"]["content"]
+                    tokens = data.get("usage", {}).get("total_tokens")
+                    print(f"   ✅ OpenRouter success with: {model}")
+                    return model, text, tokens
+
+                except Exception as e:
+                    print(f"   ❌ {model} failed: {e}")
+                    last_error = e
+                    continue
+
+        raise RuntimeError(
+            f"All LLM providers failed. Last error: {last_error}"
+        )
 
     # ── Helpers ────────────────────────────────────────────────────────────────
 

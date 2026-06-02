@@ -18,10 +18,11 @@ pydantic-settings==2.7.0
 # Authentication
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
+bcrypt==4.0.1
 python-multipart==0.0.20
 
-# AI — Primary
-google-generativeai==0.8.3
+# AI — Primary (new SDK supports AQ.A key format)
+google-genai>=1.0.0
 
 # AI — Agent framework
 langgraph==0.2.61

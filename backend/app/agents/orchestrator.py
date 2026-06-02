@@ -64,45 +64,30 @@ def build_pipeline_graph() -> object:
     builder = StateGraph(PipelineState)
 
     # ── Register all agent nodes ───────────────────────────────────────────────
-    builder.add_node("market_research",     MarketResearchAgent().run)
-    builder.add_node("competitor_analysis", CompetitorAnalysisAgent().run)
-    builder.add_node("product_manager",     ProductManagerAgent().run)
-    builder.add_node("technical_architect", TechnicalArchitectAgent().run)
-    builder.add_node("database_architect",  DatabaseArchitectAgent().run)
-    builder.add_node("api_design",          APIDesignAgent().run)
-    builder.add_node("uiux",                UIUXAgent().run)
-    builder.add_node("roadmap",             RoadmapAgent().run)
-    builder.add_node("marketing",           MarketingAgent().run)
-    builder.add_node("risk_analysis",       RiskAnalysisAgent().run)
+    # Note: node names use "run_" prefix to avoid conflict with PipelineState keys
+    builder.add_node("run_market_research",     MarketResearchAgent().run)
+    builder.add_node("run_competitor_analysis", CompetitorAnalysisAgent().run)
+    builder.add_node("run_product_manager",     ProductManagerAgent().run)
+    builder.add_node("run_technical_architect", TechnicalArchitectAgent().run)
+    builder.add_node("run_database_architect",  DatabaseArchitectAgent().run)
+    builder.add_node("run_api_design",          APIDesignAgent().run)
+    builder.add_node("run_uiux",                UIUXAgent().run)
+    builder.add_node("run_roadmap",             RoadmapAgent().run)
+    builder.add_node("run_marketing",           MarketingAgent().run)
+    builder.add_node("run_risk_analysis",       RiskAnalysisAgent().run)
 
-    # ── Define execution edges ─────────────────────────────────────────────────
-    # Agents 1 & 2 run immediately (no dependencies)
-    builder.add_edge(START, "market_research")
-    builder.add_edge(START, "competitor_analysis")
-
-    # Agent 3 waits for both 1 and 2
-    builder.add_edge("market_research",     "product_manager")
-    builder.add_edge("competitor_analysis", "product_manager")
-
-    # Agents 4, 7, 9 all depend on Agent 3
-    builder.add_edge("product_manager", "technical_architect")
-    builder.add_edge("product_manager", "uiux")
-    builder.add_edge("product_manager", "marketing")
-
-    # Agents 5 & 6 depend on Agent 4
-    builder.add_edge("technical_architect", "database_architect")
-    builder.add_edge("technical_architect", "api_design")
-
-    # Agent 8 waits for PM + Tech + DB + API + UI/UX
-    builder.add_edge("database_architect", "roadmap")
-    builder.add_edge("api_design",         "roadmap")
-    builder.add_edge("uiux",               "roadmap")
-
-    # Agent 10 waits for all others
-    builder.add_edge("roadmap",   "risk_analysis")
-    builder.add_edge("marketing", "risk_analysis")
-
-    builder.add_edge("risk_analysis", END)
+    # ── Define execution edges (sequential — avoids concurrent state conflicts) ──
+    builder.add_edge(START,                     "run_market_research")
+    builder.add_edge("run_market_research",     "run_competitor_analysis")
+    builder.add_edge("run_competitor_analysis", "run_product_manager")
+    builder.add_edge("run_product_manager",     "run_technical_architect")
+    builder.add_edge("run_technical_architect", "run_database_architect")
+    builder.add_edge("run_database_architect",  "run_api_design")
+    builder.add_edge("run_api_design",          "run_uiux")
+    builder.add_edge("run_uiux",                "run_roadmap")
+    builder.add_edge("run_roadmap",             "run_marketing")
+    builder.add_edge("run_marketing",           "run_risk_analysis")
+    builder.add_edge("run_risk_analysis",       END)
 
     return builder.compile()
 

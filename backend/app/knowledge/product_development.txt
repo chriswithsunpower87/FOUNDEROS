@@ -1,28 +1,43 @@
 Product Development Frameworks for Startups
 
 Jobs-To-Be-Done (JTBD)
-JTBD theory: customers don't buy products, they hire them to do a job. Understand the functional, emotional, and social jobs your product does for customers. Map outcomes customers want: reduce time, reduce cost, reduce risk, improve output quality.
+JTBD theory: customers don't buy products, they hire them to do a job. The job is the progress the customer is trying to make in a specific circumstance. Understand the functional job (what they're trying to accomplish), the emotional job (how they want to feel), and the social job (how they want to be perceived). Map desired outcomes: reduce time, reduce cost, reduce risk, improve output quality, increase predictability. Example: people don't buy a drill, they buy a hole in the wall. They don't hire Slack, they hire "staying aligned with my team without email chaos."
 
 User Story Mapping
-User story mapping creates a shared understanding of the product. Arrange stories as a narrative flow. Group by user activities. Prioritize for the MVP slice — the smallest complete experience.
+User story mapping creates a shared understanding of the product between engineering, design, and business. Arrange stories as a narrative flow left-to-right (the backbone). Group by user activities (the spine). Break activities into tasks. Prioritize for the MVP slice — the smallest complete experience that delivers end-to-end value. The map shows what you're building AND what you're deliberately leaving out.
+
+Writing Excellent User Stories
+Format: As a [type of user], I want [some goal] so that [some reason]. Example: "As a startup founder, I want to export my blueprint as a PDF so that I can share it with investors." Acceptance criteria should be written as: Given [context], When [action], Then [outcome]. Stories should be independent, negotiable, valuable, estimable, small, and testable (INVEST criteria).
 
 Agile and Scrum for Startups
-Two-week sprints. Daily standups (15 minutes). Sprint planning, review, retrospective. Backlog grooming. User stories with acceptance criteria. Definition of done. Velocity tracking.
+Two-week sprints are standard. Daily standups should be 15 minutes max — what did you do yesterday, what will you do today, any blockers. Sprint planning sets the sprint goal and selects backlog items. Sprint review demos working software to stakeholders. Sprint retrospective improves the process. Backlog grooming refines and estimates upcoming stories. Definition of done: coded, reviewed, tested, documented, deployed to staging.
 
 Product Roadmap Types
-Now-Next-Later roadmap for early stage startups. Outcome-based roadmap (not feature-based). Theme-based roadmaps. OKR-driven roadmaps. Avoid Gantt charts at MVP stage.
+Now-Next-Later roadmap for early-stage startups: what we're building now, what's next, what we're considering later. Outcome-based roadmap: framed as problems to solve and metrics to move, not features to build. Theme-based roadmaps group work into strategic areas. OKR-driven roadmaps connect product work to company objectives. Avoid Gantt charts and date-heavy roadmaps at MVP stage — they create false certainty and pressure to ship unvalidated features.
 
-Design Thinking
-Empathize: understand user pain deeply through interviews. Define: synthesize observations into a problem statement. Ideate: brainstorm solutions widely. Prototype: build cheap, fast prototypes. Test: validate with real users.
+Design Thinking — Double Diamond
+Discover: research and understand the problem space through user interviews, observation, and data analysis. Define: synthesize observations into a clear problem statement and "How Might We" questions. Develop: ideate broadly, prototype quickly, test with real users. Deliver: refine and build the validated solution. The double diamond prevents building the wrong thing beautifully.
 
-Technical Debt
-Balance speed and quality. Technical debt is acceptable at MVP stage but must be paid back. Document it. Set aside 20% of sprint capacity for debt reduction once product ships.
+Technical Architecture Decisions for Startups
+Monolith vs Microservices: start with a monolith. Microservices are not a starting architecture — they are an evolution. A well-structured monolith can serve a startup until it reaches significant scale. Premature decomposition into microservices adds operational complexity without benefit at early stage. When to break out microservices: when a specific service needs to scale independently, when team size reaches the "two-pizza team" threshold per service, or when different parts need different technology stacks.
 
-API-First Design
-Design APIs before building UIs. This ensures flexibility and enables mobile apps, third-party integrations, and future product extensions from day one.
+Database Selection Framework
+PostgreSQL is the default choice for most startups: ACID compliant, JSONB for flexible schemas, excellent performance, strong ecosystem. Add Redis for caching, real-time features, and job queues. Only add NoSQL (MongoDB, DynamoDB) when you have a genuine schema flexibility requirement. Vector databases (Pinecone, Weaviate, Chroma) for AI/ML applications requiring semantic search. Time-series databases (TimescaleDB, InfluxDB) for metrics and monitoring.
+
+API Design Best Practices
+REST over GraphQL for simple CRUD applications. RESTful conventions: GET for reads, POST for creates, PUT/PATCH for updates, DELETE for deletes. Always version your API: /api/v1/. Use UUID primary keys (not auto-increment integers) for security and distributed systems compatibility. Return consistent response envelopes: {success, data, message}. Use HTTP status codes correctly: 200 OK, 201 Created, 400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found, 422 Validation Error, 429 Rate Limited, 500 Internal Server Error.
 
 Feature Prioritization Frameworks
-RICE scoring: Reach × Impact × Confidence / Effort. MoSCoW: Must Have, Should Have, Could Have, Won't Have. ICE scoring: Impact, Confidence, Ease. Kano Model: basic, performance, and delight features.
+RICE scoring: Reach (users affected per quarter) × Impact (0.25/0.5/1/2/3) × Confidence (percentage) / Effort (person-weeks). Higher RICE = higher priority. MoSCoW: Must Have (MVP blocker), Should Have (important but not MVP-blocking), Could Have (nice to have), Won't Have (explicitly excluded). ICE scoring: Impact × Confidence × Ease. Kano Model: basic features (expected, absence causes dissatisfaction), performance features (more is better), delight features (unexpected, drives satisfaction). Build in this order for MVP: basic features first, then performance, then delight.
 
-System Design Principles
-Single Responsibility Principle. Separation of concerns. Don't repeat yourself (DRY). YAGNI (You Aren't Gonna Need It) — don't over-engineer at MVP stage. Design for change. Write tests for critical paths.
+System Design Principles for Startups
+SOLID principles: Single Responsibility, Open-Closed, Liskov Substitution, Interface Segregation, Dependency Inversion. DRY: Don't Repeat Yourself — single source of truth for every piece of logic. YAGNI: You Aren't Gonna Need It — don't build for hypothetical future requirements. KISS: Keep It Simple, Stupid. Design for change: use dependency injection, thin controllers, fat services. Write tests for critical business logic paths. Use environment variables for all configuration. Log everything with structured logging.
+
+Technical Debt Management
+Technical debt is acceptable at MVP stage — moving fast requires trade-offs. But document all debt decisions: what shortcut was taken, why, and what the proper solution is. Establish a technical debt register. Allocate 20% of every sprint to debt reduction once product is shipping. Prioritize debt that blocks new feature development. Never let debt accumulate in security-critical paths.
+
+Scalability Patterns
+Horizontal scaling: add more instances behind a load balancer. Vertical scaling: upgrade to a larger server. Caching: in-memory (Redis) to reduce database load. Database connection pooling: use PgBouncer or SQLAlchemy's built-in pooling. Read replicas: offload read traffic from primary database. Background job queues (Celery, RQ): for long-running tasks, don't block HTTP responses. CDN: serve static assets from the edge. Pagination: never return unbounded lists from APIs.
+
+Security Fundamentals for Startups
+Authentication: use battle-tested libraries, never roll your own. Passwords: bcrypt with cost factor 12+. JWT: short expiry (15 minutes for access tokens, 7 days for refresh tokens). Authorization: verify ownership on every database query, not just route guards. Input validation: validate and sanitize all user input at the API boundary. SQL injection: use ORM parameterized queries, never string interpolation in SQL. HTTPS: enforce TLS everywhere, redirect HTTP to HTTPS. Rate limiting: protect all endpoints, especially auth.

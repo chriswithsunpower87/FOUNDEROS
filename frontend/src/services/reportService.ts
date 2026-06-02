@@ -34,38 +34,61 @@ export const reportService = {
 
   /**
    * Download the full blueprint as a PDF file.
+   * Uses fetch() + Authorization header because a plain <a> tag cannot
+   * send custom headers — the export endpoint requires a valid JWT.
    * @param ideaId - UUID of the idea
    * @param title - Idea title (used for filename)
    */
-  downloadPDF(ideaId: string, title: string): void {
+  async downloadPDF(ideaId: string, title: string): Promise<void> {
     const token = localStorage.getItem("access_token");
     const url = `${API_BASE_URL}/api/v1/ideas/${ideaId}/export/pdf`;
+
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!response.ok) {
+      throw new Error(`PDF export failed: ${response.statusText}`);
+    }
+
+    // Convert to blob, create a temporary object URL, trigger click, then clean up
+    const blob = await response.blob();
+    const objectUrl = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute(
-      "download",
-      `${title.toLowerCase().replace(/ /g, "-")}-blueprint.pdf`
-    );
+    link.href = objectUrl;
+    link.download = `${title.toLowerCase().replace(/ /g, "-")}-blueprint.pdf`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(objectUrl);
   },
 
   /**
    * Download the full blueprint as a Markdown file.
+   * Uses fetch() + Authorization header for the same reason as downloadPDF.
    * @param ideaId - UUID of the idea
    * @param title - Idea title (used for filename)
    */
-  downloadMarkdown(ideaId: string, title: string): void {
+  async downloadMarkdown(ideaId: string, title: string): Promise<void> {
+    const token = localStorage.getItem("access_token");
     const url = `${API_BASE_URL}/api/v1/ideas/${ideaId}/export/markdown`;
+
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Markdown export failed: ${response.statusText}`);
+    }
+
+    const blob = await response.blob();
+    const objectUrl = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute(
-      "download",
-      `${title.toLowerCase().replace(/ /g, "-")}-blueprint.md`
-    );
+    link.href = objectUrl;
+    link.download = `${title.toLowerCase().replace(/ /g, "-")}-blueprint.md`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(objectUrl);
   },
 };

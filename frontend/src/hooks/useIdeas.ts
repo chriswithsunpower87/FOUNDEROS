@@ -32,6 +32,8 @@ export function useIdeas() {
 
 /**
  * Fetch a single idea by ID.
+ * Polls every 3 seconds while the pipeline is PENDING or PROCESSING
+ * so the workspace page reflects live status without a manual refresh.
  * @param ideaId - UUID of the idea
  */
 export function useIdea(ideaId: string) {
@@ -39,7 +41,13 @@ export function useIdea(ideaId: string) {
     queryKey: ["idea", ideaId],
     queryFn: () => ideaService.getIdea(ideaId),
     enabled: !!ideaId,
-    staleTime: 30_000,
+    staleTime: 5_000,
+    refetchInterval: (query) => {
+      const status = query.state.data?.status;
+      // Keep polling while the pipeline hasn't reached a terminal state
+      if (status === "PENDING" || status === "PROCESSING") return 3_000;
+      return false;
+    },
   });
 }
 
@@ -70,14 +78,19 @@ export function useDeleteIdea() {
 
 /**
  * Trigger the AI analysis pipeline for an idea.
- * Invalidates the idea and ideas list on success.
+ * Invalidates the idea, ideas list, and reports cache on success so
+ * polling kicks in immediately on all three queries.
  */
 export function useAnalyzeIdea() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (ideaId: string) => ideaService.analyzeIdea(ideaId),
     onSuccess: (_data, ideaId) => {
+      // Invalidate idea → triggers immediate refetch + polling starts
       queryClient.invalidateQueries({ queryKey: ["idea", ideaId] });
+      // Invalidate reports → triggers immediate refetch + report polling starts
+      queryClient.invalidateQueries({ queryKey: ["reports", ideaId] });
+      // Refresh the dashboard card list too
       queryClient.invalidateQueries({ queryKey: IDEAS_KEY });
     },
   });

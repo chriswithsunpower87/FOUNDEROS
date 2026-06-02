@@ -173,7 +173,7 @@ class IdeaService:
     async def trigger_analysis(self, idea_id: uuid.UUID, user_id: uuid.UUID) -> Idea:
         """
         Purpose: Prepare the idea for pipeline execution.
-          Creates one PENDING report stub for each of the 10 agents.
+          Resets or creates one PENDING report stub per agent (handles re-runs).
           Sets idea status to PENDING.
         Parameters:
           idea_id: UUID of the idea to analyze.
@@ -191,14 +191,28 @@ class IdeaService:
                 detail="Analysis is already running for this idea",
             )
 
-        # Create one report stub per agent
+        # Fetch any existing reports for this idea
+        existing_result = await self.db.execute(
+            select(Report).where(Report.idea_id == idea.id)
+        )
+        existing_reports = {r.agent_type: r for r in existing_result.scalars().all()}
+
         for agent_type in ALL_AGENT_TYPES:
-            report = Report(
-                idea_id=idea.id,
-                agent_type=agent_type,
-                status=ReportStatus.PENDING,
-            )
-            self.db.add(report)
+            if agent_type in existing_reports:
+                # Reset existing report to PENDING so it re-runs cleanly
+                report = existing_reports[agent_type]
+                report.status = ReportStatus.PENDING
+                report.output = None
+                report.reasoning_summary = None
+                report.error_message = None
+                report.execution_time_ms = None
+            else:
+                # First time — create a fresh stub
+                self.db.add(Report(
+                    idea_id=idea.id,
+                    agent_type=agent_type,
+                    status=ReportStatus.PENDING,
+                ))
 
         idea.status = IdeaStatus.PENDING
         await self.db.flush()
