@@ -213,7 +213,7 @@ class BaseAgent(ABC):
         Raises:
           RuntimeError: If every LLM attempt fails.
         """
-        # ── Try Gemini (primary) ────────────────────────────────────────────────
+        # ── Try Gemini (one attempt, fail fast) ────────────────────────────────
         try:
             response = self.gemini_client.models.generate_content(
                 model=settings.gemini_model,
