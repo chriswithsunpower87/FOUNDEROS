@@ -64,6 +64,12 @@ class Idea(Base, UUIDPrimaryKeyMixin, TimestampMixin):
         nullable=False,
         index=True,
     )
+    is_public: Mapped[bool] = mapped_column(
+        default=False,
+        nullable=False,
+        index=True,
+        comment="When True, the blueprint is accessible without authentication",
+    )
 
     # Many ideas → one user
     user: Mapped["User"] = relationship("User", back_populates="ideas")  # noqa: F821

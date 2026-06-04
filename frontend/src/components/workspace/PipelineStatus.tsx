@@ -12,7 +12,7 @@ interface PipelineStatusProps {
 }
 
 const AGENT_DOTS = [
-  "📊","🔍","📋","🏗️","🗄️","🔌","🎨","🗺️","📣","⚠️"
+  "📊","🔍","📋","🏗️","🗄️","🔌","🎨","🗺️","📣","⚠️","💰"
 ];
 
 export function PipelineStatus({ total, completed, status }: PipelineStatusProps) {
@@ -41,7 +41,7 @@ export function PipelineStatus({ total, completed, status }: PipelineStatusProps
             isFailed ? "text-red-700"   :
                        "text-blue-800"
           }`}>
-            {isDone    ? "Blueprint Complete — all 10 agents done!"  :
+            {isDone    ? "Blueprint Complete — all 11 agents done!"  :
              isFailed  ? "Pipeline encountered an error"             :
                          "Generating your startup blueprint…"}
           </span>

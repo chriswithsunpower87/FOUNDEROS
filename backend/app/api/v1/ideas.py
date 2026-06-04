@@ -17,12 +17,13 @@ Dependencies:
 import asyncio
 import uuid
 
-from fastapi import APIRouter, BackgroundTasks, Depends, Query, status
+from fastapi import APIRouter, BackgroundTasks, Depends, Query, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.agents.orchestrator import run_pipeline_background
 from app.core.database import get_async_db
 from app.core.dependencies import get_current_user
+from app.core.limiter import limiter
 from app.models.idea import IdeaStatus
 from app.models.user import User
 from app.schemas.common import APIResponse, PaginatedResponse
@@ -165,9 +166,11 @@ async def delete_idea(
     "/{idea_id}/analyze",
     response_model=APIResponse[dict],
     status_code=status.HTTP_202_ACCEPTED,
-    summary="Trigger the 10-agent AI analysis pipeline",
+    summary="Trigger the 11-agent AI analysis pipeline",
 )
+@limiter.limit("5/day")          # 5 analyses per user per day
 async def analyze_idea(
+    request: Request,              # Required by SlowAPI for rate limit key extraction
     idea_id: uuid.UUID,
     background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_async_db),

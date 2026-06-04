@@ -12,6 +12,7 @@ export interface Idea {
   problem_statement: string;
   target_audience: string;
   status: IdeaStatus;
+  is_public: boolean;
   created_at: string;
   updated_at: string;
 }

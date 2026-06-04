@@ -10,10 +10,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Trash2, ArrowRight, Clock } from "lucide-react";
+import { Trash2, ArrowRight, Clock, Pencil } from "lucide-react";
 import { cn, formatDate, truncate } from "@/lib/utils";
 import { STATUS_COLORS } from "@/lib/constants";
 import { useDeleteIdea } from "@/hooks/useIdeas";
+import { EditIdeaModal } from "./EditIdeaModal";
 import type { Idea } from "@/types/idea.types";
 
 interface IdeaCardProps {
@@ -22,6 +23,7 @@ interface IdeaCardProps {
 
 export function IdeaCard({ idea }: IdeaCardProps) {
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
   const { mutate: deleteIdea, isPending } = useDeleteIdea();
 
   function handleDelete() {
@@ -36,7 +38,7 @@ export function IdeaCard({ idea }: IdeaCardProps) {
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-md transition-shadow">
-      {/* Status badge */}
+      {/* Status badge + action buttons */}
       <div className="flex items-start justify-between gap-3 mb-3">
         <span
           className={cn(
@@ -49,24 +51,39 @@ export function IdeaCard({ idea }: IdeaCardProps) {
           )}
           {idea.status}
         </span>
-        <button
-          onClick={handleDelete}
-          disabled={isPending}
-          className={cn(
-            "text-xs transition-colors",
-            confirmDelete
-              ? "text-red-600 font-medium"
-              : "text-slate-400 hover:text-red-500"
+
+        <div className="flex items-center gap-2">
+          {/* Edit button — only visible for DRAFT ideas */}
+          {idea.status === "DRAFT" && (
+            <button
+              onClick={() => setIsEditOpen(true)}
+              className="text-slate-400 hover:text-blue-500 transition-colors"
+              title="Edit idea"
+            >
+              <Pencil className="w-3.5 h-3.5" />
+            </button>
           )}
-        >
-          {isPending ? (
-            "Deleting..."
-          ) : confirmDelete ? (
-            "Confirm?"
-          ) : (
-            <Trash2 className="w-3.5 h-3.5" />
-          )}
-        </button>
+
+          {/* Delete button with 2-click confirmation */}
+          <button
+            onClick={handleDelete}
+            disabled={isPending}
+            className={cn(
+              "text-xs transition-colors",
+              confirmDelete
+                ? "text-red-600 font-medium"
+                : "text-slate-400 hover:text-red-500"
+            )}
+          >
+            {isPending ? (
+              "Deleting..."
+            ) : confirmDelete ? (
+              "Confirm?"
+            ) : (
+              <Trash2 className="w-3.5 h-3.5" />
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Title */}
@@ -93,6 +110,13 @@ export function IdeaCard({ idea }: IdeaCardProps) {
           <ArrowRight className="w-3 h-3" />
         </Link>
       </div>
+
+      {/* Edit modal — only mounted when open to save memory */}
+      <EditIdeaModal
+        idea={idea}
+        open={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+      />
     </div>
   );
 }

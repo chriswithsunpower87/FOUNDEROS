@@ -35,6 +35,7 @@ class AgentType(str, enum.Enum):
     ROADMAP              = "ROADMAP"
     MARKETING            = "MARKETING"
     RISK_ANALYSIS        = "RISK_ANALYSIS"
+    REVENUE_COST         = "REVENUE_COST"   # Agent 11 — Revenue Model & Cost Estimation
 
 
 class ReportStatus(str, enum.Enum):

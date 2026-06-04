@@ -53,7 +53,7 @@ export function ExportButtons({ ideaId, ideaTitle }: ExportButtonsProps) {
         <div className="flex-1">
           <p className="text-sm font-medium text-green-800">Blueprint ready!</p>
           <p className="text-xs text-green-600">
-            All 10 agents completed — download your startup blueprint
+            All 11 agents completed — download your startup blueprint
           </p>
         </div>
         <div className="flex gap-2">

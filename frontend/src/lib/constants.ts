@@ -22,6 +22,7 @@ export const AGENT_LABELS: Record<string, string> = {
   ROADMAP: "MVP Roadmap",
   MARKETING: "Go-To-Market Strategy",
   RISK_ANALYSIS: "Risk Analysis",
+  REVENUE_COST: "Revenue & Cost Model",
 };
 
 /** Ordered list of agents for display */
@@ -36,6 +37,7 @@ export const AGENT_ORDER = [
   "ROADMAP",
   "MARKETING",
   "RISK_ANALYSIS",
+  "REVENUE_COST",
 ];
 
 /** Status badge color classes (Tailwind) */

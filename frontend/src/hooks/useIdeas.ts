@@ -77,6 +77,24 @@ export function useDeleteIdea() {
 }
 
 /**
+ * Update an idea's metadata (title, problem statement, target audience).
+ * Only permitted by the API when the idea status is DRAFT.
+ * Invalidates the individual idea and list cache on success.
+ * @param ideaId - UUID of the idea to update
+ */
+export function useUpdateIdea(ideaId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: import("@/types/idea.types").UpdateIdeaPayload) =>
+      ideaService.updateIdea(ideaId, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["idea", ideaId] });
+      queryClient.invalidateQueries({ queryKey: IDEAS_KEY });
+    },
+  });
+}
+
+/**
  * Trigger the AI analysis pipeline for an idea.
  * Invalidates the idea, ideas list, and reports cache on success so
  * polling kicks in immediately on all three queries.

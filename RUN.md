@@ -41,24 +41,46 @@ psql founderos -c "\l" | grep founderos
 
 ---
 
-## STEP 3 — Run Database Migrations
+## STEP 3 — Install new backend dependencies
 
-Open your Terminal and navigate to the backend folder:
+New packages were added (slowapi for rate limiting, aiosqlite + pytest for testing):
 
 ```bash
 cd ~/projects/FOUNDEROS/backend
+source venv/bin/activate
+pip install -r requirements.txt
+```
 
-# Activate your virtual environment
+---
+
+## STEP 4 — Run Database Migrations
+
+```bash
+cd ~/projects/FOUNDEROS/backend
 source venv/bin/activate
 
-# Run migrations — creates all tables
+# Runs all pending migrations (001 → 002 → 003)
 alembic upgrade head
 ```
 
-You should see output ending with:
+You should see:
 ```
 INFO  [alembic.runtime.migration] Running upgrade  -> 001, Initial schema
+INFO  [alembic.runtime.migration] Running upgrade 001 -> 002, Add REVENUE_COST agent
+INFO  [alembic.runtime.migration] Running upgrade 002 -> 003, Add is_public to ideas
 ```
+
+---
+
+## STEP 4b — Run the test suite (optional but impressive)
+
+```bash
+cd ~/projects/FOUNDEROS/backend
+source venv/bin/activate
+pytest tests/ -v
+```
+
+All tests use an in-memory SQLite DB — no Postgres needed to run tests.
 
 ---
 

@@ -41,6 +41,7 @@ BLUEPRINT_ORDER = [
     AgentType.ROADMAP,
     AgentType.MARKETING,
     AgentType.RISK_ANALYSIS,
+    AgentType.REVENUE_COST,
 ]
 
 AGENT_LABELS = {
@@ -54,6 +55,7 @@ AGENT_LABELS = {
     AgentType.ROADMAP: "8. MVP Roadmap",
     AgentType.MARKETING: "9. Go-To-Market Strategy",
     AgentType.RISK_ANALYSIS: "10. Risk Analysis",
+    AgentType.REVENUE_COST: "11. Revenue & Cost Model",
 }
 
 

@@ -23,7 +23,7 @@ from app.models.idea import Idea, IdeaStatus
 from app.models.report import AgentType, Report, ReportStatus
 from app.schemas.idea import CreateIdeaRequest, UpdateIdeaRequest
 
-# All 10 agents in pipeline execution order
+# All 11 agents in pipeline execution order
 ALL_AGENT_TYPES = [
     AgentType.MARKET_RESEARCH,
     AgentType.COMPETITOR_ANALYSIS,
@@ -35,6 +35,7 @@ ALL_AGENT_TYPES = [
     AgentType.ROADMAP,
     AgentType.MARKETING,
     AgentType.RISK_ANALYSIS,
+    AgentType.REVENUE_COST,    # Agent 11 — Revenue Model & Cost Estimation
 ]
 
 

@@ -63,10 +63,21 @@ export const ideaService = {
   },
 
   /**
-   * Trigger the 10-agent AI analysis pipeline.
+   * Trigger the 11-agent AI analysis pipeline.
    * @param ideaId - UUID of the idea to analyze
    */
   async analyzeIdea(ideaId: string): Promise<void> {
     await api.post(`/ideas/${ideaId}/analyze`);
+  },
+
+  /**
+   * Toggle the blueprint's public/private visibility.
+   * @param ideaId - UUID of the idea to toggle
+   */
+  async togglePublic(ideaId: string): Promise<Idea> {
+    const response = await api.post<APIResponse<Idea>>(
+      `/ideas/${ideaId}/toggle-public`
+    );
+    return response.data.data;
   },
 };

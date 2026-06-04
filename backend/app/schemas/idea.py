@@ -62,6 +62,7 @@ class IdeaResponse(BaseModel):
     problem_statement: str
     target_audience: str
     status: IdeaStatus
+    is_public: bool
     created_at: datetime
     updated_at: datetime
 

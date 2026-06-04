@@ -302,7 +302,7 @@ class BaseAgent(ABC):
                 k for k in [
                     "market_research", "competitor_analysis", "product_manager",
                     "technical_architect", "database_architect", "api_design",
-                    "uiux", "roadmap", "marketing", "risk_analysis",
+                    "uiux", "roadmap", "marketing", "risk_analysis", "revenue_cost",
                 ]
                 if state.get(k) is not None
             ],
@@ -329,6 +329,7 @@ class BaseAgent(ABC):
             AgentType.ROADMAP: "roadmap",
             AgentType.MARKETING: "marketing",
             AgentType.RISK_ANALYSIS: "risk_analysis",
+            AgentType.REVENUE_COST: "revenue_cost",
         }
         field = field_map[self.agent_type]
         updated = dict(state)

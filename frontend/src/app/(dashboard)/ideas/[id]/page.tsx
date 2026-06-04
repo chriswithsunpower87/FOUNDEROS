@@ -3,9 +3,10 @@
  * Purpose: Idea workspace page — shows agent reports + trace view.
  * Responsibilities:
  *   - Display idea metadata (title, problem, audience)
- *   - Show all 10 agent report cards with live status updates
- *   - Show Agent Trace View tab
- *   - Export buttons (PDF / Markdown)
+ *   - Show all 11 agent report cards with REAL-TIME updates via SSE
+ *   - Fall back to React Query polling if SSE is unavailable
+ *   - Show Agent Trace View tab and Export buttons when complete
+ *   - Show Share button for public blueprint links
  */
 
 "use client";
@@ -14,11 +15,13 @@ import { useParams } from "next/navigation";
 import { useState } from "react";
 import { useIdea } from "@/hooks/useIdeas";
 import { useReports, useAgentTrace } from "@/hooks/useReports";
+import { useSSE } from "@/hooks/useSSE";
 import { IdeaHeader } from "@/components/workspace/IdeaHeader";
 import { PipelineStatus } from "@/components/workspace/PipelineStatus";
 import { AgentReportCard } from "@/components/workspace/AgentReportCard";
 import { AgentTraceView } from "@/components/workspace/AgentTraceView";
 import { ExportButtons } from "@/components/workspace/ExportButtons";
+import { ShareButton } from "@/components/workspace/ShareButton";
 import { AGENT_ORDER } from "@/lib/constants";
 import type { Report } from "@/types/report.types";
 
@@ -33,7 +36,11 @@ export default function IdeaWorkspacePage() {
   const { data: reports = [] } = useReports(ideaId);
   const { data: traces = [] } = useAgentTrace(ideaId);
 
-  // Build a map of agent_type → report for quick lookup
+  // SSE: pushes report updates in real time while the pipeline runs.
+  // Falls back to React Query polling (useReports) automatically if SSE fails.
+  useSSE({ ideaId, ideaStatus: idea?.status });
+
+  // Build a map of agent_type → report for O(1) lookup in render
   const reportMap = reports.reduce<Record<string, Report>>((acc, r) => {
     acc[r.agent_type] = r;
     return acc;
@@ -57,22 +64,23 @@ export default function IdeaWorkspacePage() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      {/* Idea metadata */}
+      {/* Idea metadata + Analyze button */}
       <IdeaHeader idea={idea} />
 
       {/* Pipeline progress bar */}
       <div className="mt-6 mb-4">
         <PipelineStatus
-          total={10}
+          total={11}
           completed={completedCount}
           status={idea.status}
         />
       </div>
 
-      {/* Export buttons */}
+      {/* Export + Share — only when blueprint is complete */}
       {idea.status === "COMPLETED" && (
-        <div className="mb-6">
+        <div className="mb-6 space-y-3">
           <ExportButtons ideaId={ideaId} ideaTitle={idea.title} />
+          <ShareButton ideaId={ideaId} isPublic={idea.is_public ?? false} />
         </div>
       )}
 

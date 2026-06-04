@@ -9,7 +9,8 @@ Dependencies:
   - typing (TypedDict, Optional, List)
 """
 
-from typing import Any, Optional
+import operator
+from typing import Annotated, Any, Optional
 from typing_extensions import TypedDict
 
 
@@ -43,6 +44,9 @@ class PipelineState(TypedDict):
     roadmap: Optional[dict[str, Any]]
     marketing: Optional[dict[str, Any]]
     risk_analysis: Optional[dict[str, Any]]
+    revenue_cost: Optional[dict[str, Any]]  # Agent 11 — Revenue Model & Cost Estimation
 
-    # ── Error accumulator — failed agents append here, pipeline continues ──────
-    errors: list[str]
+    # ── Error accumulator ─────────────────────────────────────────────────────
+    # Annotated with operator.add tells LangGraph to APPEND (not replace) when
+    # two parallel agents both write to this field simultaneously.
+    errors: Annotated[list[str], operator.add]
