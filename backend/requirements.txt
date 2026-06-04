@@ -42,6 +42,9 @@ reportlab==4.2.5
 # Rate limiting
 slowapi==0.1.9
 
+# Caching (optional — app works without Redis)
+redis[asyncio]==5.2.1
+
 # Utilities
 python-dotenv==1.0.1
 

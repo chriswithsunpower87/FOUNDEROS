@@ -54,12 +54,18 @@ async def lifespan(app: FastAPI):
     # ── Startup ────────────────────────────────────────────────────────────────
     print(f"🚀 Starting {settings.app_name} API [{settings.app_env}]")
 
+    # Initialize Redis cache (non-blocking, optional)
+    from app.core.cache import init_cache
+    await init_cache()
+
     # Run RAG initialization in a thread — server starts immediately without waiting
     asyncio.get_event_loop().run_in_executor(None, _load_rag_in_background)
 
     yield
 
     # ── Shutdown ───────────────────────────────────────────────────────────────
+    from app.core.cache import close_cache
+    await close_cache()
     print("Shutting down FounderOS API")
 
 

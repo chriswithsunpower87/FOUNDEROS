@@ -81,6 +81,8 @@ class Report(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     reasoning_summary: Mapped[str | None] = mapped_column(Text, nullable=True)
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
     execution_time_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    # Which analysis run produced this report (1 = first run, 2 = first re-run, etc.)
+    version: Mapped[int] = mapped_column(Integer, nullable=False, default=1, index=True)
 
     # Many reports → one idea
     idea: Mapped["Idea"] = relationship("Idea", back_populates="reports")  # noqa: F821

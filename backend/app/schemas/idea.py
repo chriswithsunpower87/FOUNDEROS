@@ -63,6 +63,7 @@ class IdeaResponse(BaseModel):
     target_audience: str
     status: IdeaStatus
     is_public: bool
+    analysis_count: int    # How many times this idea has been analyzed
     created_at: datetime
     updated_at: datetime
 

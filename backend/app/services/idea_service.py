@@ -174,16 +174,18 @@ class IdeaService:
     async def trigger_analysis(self, idea_id: uuid.UUID, user_id: uuid.UUID) -> Idea:
         """
         Purpose: Prepare the idea for pipeline execution.
-          Resets or creates one PENDING report stub per agent (handles re-runs).
-          Sets idea status to PENDING.
+          Creates a NEW set of versioned PENDING report stubs each time.
+          Prior versions are preserved — users can view the full history.
+          Increments idea.analysis_count on each run.
         Parameters:
           idea_id: UUID of the idea to analyze.
           user_id: UUID of the authenticated user.
         Returns:
-          Idea: Updated idea with PENDING status.
+          Idea: Updated idea with PENDING status and incremented analysis_count.
         Raises:
-          HTTPException 400: If idea is already being processed or completed.
+          HTTPException 400: If idea is already being processed.
         """
+        from sqlalchemy import func
         idea = await self.get_idea(idea_id, user_id)
 
         if idea.status in (IdeaStatus.PROCESSING, IdeaStatus.PENDING):
@@ -192,29 +194,32 @@ class IdeaService:
                 detail="Analysis is already running for this idea",
             )
 
-        # Fetch any existing reports for this idea
-        existing_result = await self.db.execute(
-            select(Report).where(Report.idea_id == idea.id)
+        # Determine the next version number
+        max_version_result = await self.db.execute(
+            select(func.max(Report.version)).where(Report.idea_id == idea.id)
         )
-        existing_reports = {r.agent_type: r for r in existing_result.scalars().all()}
+        current_max = max_version_result.scalar() or 0
+        new_version = current_max + 1
 
+        # Invalidate Redis cache for this idea's previous versions
+        try:
+            from app.core.cache import invalidate_reports
+            import asyncio
+            asyncio.create_task(invalidate_reports(str(idea.id)))
+        except Exception:
+            pass  # Non-fatal — old cache will expire naturally
+
+        # Create fresh PENDING stubs for the new version
         for agent_type in ALL_AGENT_TYPES:
-            if agent_type in existing_reports:
-                # Reset existing report to PENDING so it re-runs cleanly
-                report = existing_reports[agent_type]
-                report.status = ReportStatus.PENDING
-                report.output = None
-                report.reasoning_summary = None
-                report.error_message = None
-                report.execution_time_ms = None
-            else:
-                # First time — create a fresh stub
-                self.db.add(Report(
-                    idea_id=idea.id,
-                    agent_type=agent_type,
-                    status=ReportStatus.PENDING,
-                ))
+            self.db.add(Report(
+                idea_id=idea.id,
+                agent_type=agent_type,
+                status=ReportStatus.PENDING,
+                version=new_version,
+            ))
 
+        # Bump analysis_count and set status
+        idea.analysis_count = new_version
         idea.status = IdeaStatus.PENDING
         await self.db.flush()
         await self.db.refresh(idea)

@@ -13,7 +13,8 @@ export type AgentType =
   | "UIUX"
   | "ROADMAP"
   | "MARKETING"
-  | "RISK_ANALYSIS";
+  | "RISK_ANALYSIS"
+  | "REVENUE_COST";
 
 export type ReportStatus = "PENDING" | "RUNNING" | "COMPLETED" | "FAILED";
 
@@ -26,6 +27,7 @@ export interface Report {
   reasoning_summary: string | null;
   error_message: string | null;
   execution_time_ms: number | null;
+  version: number;    // Which analysis run (1 = first, 2 = first re-run, etc.)
   created_at: string;
   updated_at: string;
 }

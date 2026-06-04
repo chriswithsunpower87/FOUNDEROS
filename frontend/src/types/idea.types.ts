@@ -13,6 +13,7 @@ export interface Idea {
   target_audience: string;
   status: IdeaStatus;
   is_public: boolean;
+  analysis_count: number;   // How many times analyzed — drives version picker
   created_at: string;
   updated_at: string;
 }

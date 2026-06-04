@@ -70,6 +70,8 @@ class Idea(Base, UUIDPrimaryKeyMixin, TimestampMixin):
         index=True,
         comment="When True, the blueprint is accessible without authentication",
     )
+    # Tracks how many times this idea has been analyzed (increments on each re-run)
+    analysis_count: Mapped[int] = mapped_column(default=1, nullable=False)
 
     # Many ideas → one user
     user: Mapped["User"] = relationship("User", back_populates="ideas")  # noqa: F821

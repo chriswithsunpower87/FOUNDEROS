@@ -1,12 +1,11 @@
 /**
  * File: src/app/(dashboard)/ideas/[id]/page.tsx
- * Purpose: Idea workspace page — shows agent reports + trace view.
+ * Purpose: Idea workspace page — agent reports, trace view, version history.
  * Responsibilities:
- *   - Display idea metadata (title, problem, audience)
- *   - Show all 11 agent report cards with REAL-TIME updates via SSE
- *   - Fall back to React Query polling if SSE is unavailable
- *   - Show Agent Trace View tab and Export buttons when complete
- *   - Show Share button for public blueprint links
+ *   - Display idea metadata + Analyze button
+ *   - Real-time agent progress via SSE (falls back to React Query polling)
+ *   - Version picker to browse past analysis runs
+ *   - Export + Share buttons when blueprint is complete
  */
 
 "use client";
@@ -14,7 +13,7 @@
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import { useIdea } from "@/hooks/useIdeas";
-import { useReports, useAgentTrace } from "@/hooks/useReports";
+import { useReports, useAgentTrace, useVersions } from "@/hooks/useReports";
 import { useSSE } from "@/hooks/useSSE";
 import { IdeaHeader } from "@/components/workspace/IdeaHeader";
 import { PipelineStatus } from "@/components/workspace/PipelineStatus";
@@ -22,6 +21,7 @@ import { AgentReportCard } from "@/components/workspace/AgentReportCard";
 import { AgentTraceView } from "@/components/workspace/AgentTraceView";
 import { ExportButtons } from "@/components/workspace/ExportButtons";
 import { ShareButton } from "@/components/workspace/ShareButton";
+import { VersionPicker } from "@/components/workspace/VersionPicker";
 import { AGENT_ORDER } from "@/lib/constants";
 import type { Report } from "@/types/report.types";
 
@@ -32,21 +32,31 @@ export default function IdeaWorkspacePage() {
   const ideaId = params.id as string;
   const [activeTab, setActiveTab] = useState<ActiveTab>("reports");
 
+  // null = latest version (live); number = viewing a historical version
+  const [selectedVersion, setSelectedVersion] = useState<number | undefined>(undefined);
+
   const { data: idea, isLoading: ideaLoading } = useIdea(ideaId);
-  const { data: reports = [] } = useReports(ideaId);
+  const { data: versions = [] } = useVersions(ideaId);
+  const { data: reports = [] } = useReports(ideaId, selectedVersion);
   const { data: traces = [] } = useAgentTrace(ideaId);
 
-  // SSE: pushes report updates in real time while the pipeline runs.
-  // Falls back to React Query polling (useReports) automatically if SSE fails.
-  useSSE({ ideaId, ideaStatus: idea?.status });
+  // SSE: real-time updates while pipeline is running (latest version only)
+  useSSE({ ideaId, ideaStatus: selectedVersion ? undefined : idea?.status });
 
-  // Build a map of agent_type → report for O(1) lookup in render
   const reportMap = reports.reduce<Record<string, Report>>((acc, r) => {
     acc[r.agent_type] = r;
     return acc;
   }, {});
 
   const completedCount = reports.filter((r) => r.status === "COMPLETED").length;
+  const latestVersion = idea?.analysis_count ?? 1;
+
+  // The "effective" status for the pipeline bar:
+  // - When viewing a historical version, always show COMPLETED
+  // - Otherwise show the live idea status
+  const displayStatus = selectedVersion
+    ? "COMPLETED"
+    : idea?.status;
 
   if (ideaLoading) {
     return (
@@ -62,22 +72,38 @@ export default function IdeaWorkspacePage() {
     );
   }
 
+  const isViewingLatest = !selectedVersion || selectedVersion === latestVersion;
+
   return (
     <div className="max-w-4xl mx-auto">
-      {/* Idea metadata + Analyze button */}
+      {/* Idea metadata + Analyze/Re-analyze button */}
       <IdeaHeader idea={idea} />
 
-      {/* Pipeline progress bar */}
+      {/* Pipeline progress bar — reflects the version being viewed */}
       <div className="mt-6 mb-4">
         <PipelineStatus
           total={11}
           completed={completedCount}
-          status={idea.status}
+          status={displayStatus ?? "DRAFT"}
         />
       </div>
 
-      {/* Export + Share — only when blueprint is complete */}
-      {idea.status === "COMPLETED" && (
+      {/* Version picker — only shown when there are multiple runs */}
+      {versions.length > 1 && (
+        <div className="mb-4">
+          <VersionPicker
+            versions={versions}
+            selectedVersion={selectedVersion ?? latestVersion}
+            latestVersion={latestVersion}
+            onSelect={(v) =>
+              setSelectedVersion(v === latestVersion ? undefined : v)
+            }
+          />
+        </div>
+      )}
+
+      {/* Export + Share — only for latest completed blueprint */}
+      {isViewingLatest && idea.status === "COMPLETED" && (
         <div className="mb-6 space-y-3">
           <ExportButtons ideaId={ideaId} ideaTitle={idea.title} />
           <ShareButton ideaId={ideaId} isPublic={idea.is_public ?? false} />
@@ -108,7 +134,6 @@ export default function IdeaWorkspacePage() {
         </button>
       </div>
 
-      {/* Reports tab */}
       {activeTab === "reports" && (
         <div className="space-y-3">
           {AGENT_ORDER.map((agentType) => (
@@ -121,7 +146,6 @@ export default function IdeaWorkspacePage() {
         </div>
       )}
 
-      {/* Trace view tab */}
       {activeTab === "trace" && <AgentTraceView traces={traces} />}
     </div>
   );

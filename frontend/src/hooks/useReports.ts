@@ -24,21 +24,38 @@ function isPipelineRunning(reports: Report[]): boolean {
 
 /**
  * Fetch and poll agent reports for an idea.
- * Polling interval is 3 seconds, stops automatically when done.
+ * Supports versioned history — pass a version to view a past analysis.
+ * Polling stops automatically for historical versions (they never change).
  * @param ideaId - UUID of the idea
+ * @param version - Analysis version (omit for latest / live)
  */
-export function useReports(ideaId: string) {
+export function useReports(ideaId: string, version?: number) {
   return useQuery({
-    queryKey: ["reports", ideaId],
-    queryFn: () => reportService.getReports(ideaId),
+    queryKey: ["reports", ideaId, version ?? "latest"],
+    queryFn: () => reportService.getReports(ideaId, version),
     enabled: !!ideaId,
-    // Refetch every 3 seconds while pipeline is running
     refetchInterval: (query) => {
+      // Historical versions are immutable — no polling needed
+      if (version !== undefined) return false;
       const data = query.state.data;
       if (!data) return REPORTS_POLL_INTERVAL_MS;
       return isPipelineRunning(data) ? REPORTS_POLL_INTERVAL_MS : false;
     },
-    staleTime: 1000,
+    staleTime: version !== undefined ? Infinity : 1000,
+  });
+}
+
+/**
+ * Fetch all available analysis version numbers for an idea.
+ * Returns [1, 2, 3] if the idea was analyzed three times.
+ * @param ideaId - UUID of the idea
+ */
+export function useVersions(ideaId: string) {
+  return useQuery({
+    queryKey: ["versions", ideaId],
+    queryFn: () => reportService.getVersions(ideaId),
+    enabled: !!ideaId,
+    staleTime: 30_000,
   });
 }
 

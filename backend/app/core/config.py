@@ -49,6 +49,9 @@ class Settings(BaseSettings):
     # ── ChromaDB ─────────────────────────────────────────────────────────────
     chroma_persist_path: str = "./chroma_db"
 
+    # ── Redis (optional — caching disabled if not set) ───────────────────────
+    redis_url: str = ""         # e.g. "redis://localhost:6379/0"
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

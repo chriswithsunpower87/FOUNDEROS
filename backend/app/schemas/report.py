@@ -172,6 +172,7 @@ class ReportResponse(BaseModel):
     reasoning_summary: str | None
     error_message: str | None
     execution_time_ms: int | None
+    version: int           # Which analysis run this report belongs to (1, 2, 3...)
     created_at: datetime
     updated_at: datetime
 

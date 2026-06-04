@@ -10,13 +10,26 @@ import { API_BASE_URL } from "@/lib/constants";
 
 export const reportService = {
   /**
-   * Get all agent reports for an idea.
-   * Called every 3 seconds during pipeline execution.
+   * Get agent reports for an idea, optionally filtered by analysis version.
+   * @param ideaId - UUID of the idea
+   * @param version - Analysis version (omit for latest)
+   */
+  async getReports(ideaId: string, version?: number): Promise<Report[]> {
+    const url = version
+      ? `/ideas/${ideaId}/reports?version=${version}`
+      : `/ideas/${ideaId}/reports`;
+    const response = await api.get<APIResponse<Report[]>>(url);
+    return response.data.data;
+  },
+
+  /**
+   * Get all available analysis version numbers for an idea.
+   * Returns e.g. [1, 2, 3] if analyzed three times.
    * @param ideaId - UUID of the idea
    */
-  async getReports(ideaId: string): Promise<Report[]> {
-    const response = await api.get<APIResponse<Report[]>>(
-      `/ideas/${ideaId}/reports`
+  async getVersions(ideaId: string): Promise<number[]> {
+    const response = await api.get<APIResponse<number[]>>(
+      `/ideas/${ideaId}/versions`
     );
     return response.data.data;
   },
