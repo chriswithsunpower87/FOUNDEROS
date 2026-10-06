@@ -16,22 +16,22 @@ pydantic[email]==2.10.3
 pydantic-settings==2.7.0
 
 # Authentication
-python-jose[cryptography]==3.3.0
+python-jose[cryptography]==3.5.0
 passlib[bcrypt]==1.7.4
 bcrypt==4.0.1
-python-multipart==0.0.20
+python-multipart==0.0.31
 
 # AI — Primary (new SDK supports AQ.A key format)
 google-genai>=1.0.0
 
 # AI — Agent framework
-langgraph==0.2.61
+langgraph==1.0.10rc1
 
 # AI — Embeddings (local, free)
-sentence-transformers==3.3.1
+sentence-transformers==5.6.0
 
 # Vector database (local, free)
-chromadb==0.5.23
+chromadb==1.5.9
 
 # HTTP client (for OpenRouter fallback)
 httpx==0.28.1
@@ -46,10 +46,10 @@ slowapi==0.1.9
 redis[asyncio]==5.2.1
 
 # Utilities
-python-dotenv==1.0.1
+python-dotenv==1.2.2
 
 # ── Testing (install with: pip install -r requirements.txt) ──────────────────
-pytest==8.3.4
+pytest==9.0.3
 pytest-asyncio==0.24.0
 httpx==0.28.1
 aiosqlite==0.20.0         # In-memory SQLite for test DB (no Postgres needed)
